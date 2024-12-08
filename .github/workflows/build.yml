@@ -1,0 +1,93 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [ "main", "dev", "staging" ]
+    paths-ignore:
+      - '.scripts/**'
+      - .gitignore
+      - CODE_OF_CONDUCT.md
+      - LICENSE
+      - README.md
+
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: false
+        default: ''
+      build-artifacts:
+        type: boolean
+        required: false
+        default: false
+        
+    outputs:
+      build-tag:
+        description: 'Build Tag output'
+        value: ${{ jobs.build.outputs.build-tag }} # This references the job output
+        
+permissions:
+  id-token: write
+  contents: read
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      build-tag: ${{ steps.set_tag.outputs.build-tag }} # Set output for webTag at the job level
+    steps:
+    - name: Set Build Tag Output
+      if: ${{ inputs.build-artifacts == true }}
+      id: set_tag
+      run: |
+        # Get the Git commit hash (shortened to 7 characters)
+        GIT_HASH=${{ github.sha }}
+        SHORT_GIT_HASH=${GIT_HASH:0:7}
+        
+         # Get the current timestamp in YYYYMMDD-HHMMSS format
+        TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+        
+        # Combine them into the custom tag format
+        BUILD_TAG="${{ vars.ENV_NAME }}-${SHORT_GIT_HASH}-${TIMESTAMP}"
+        
+        # Set the build tag as a job output
+        echo "build-tag=${BUILD_TAG}" >> $GITHUB_ENV
+        echo "build-tag=${BUILD_TAG}" >> $GITHUB_OUTPUT
+        
+        # Optionally, you can print the build tag for logging purposes
+        echo "Generated Build Tag: ${BUILD_TAG}"
+
+    - uses: actions/checkout@v4
+      name: Checkout code
+
+    - uses: actions/cache@v4
+      name: Cache NPM dependencies
+      with: 
+       path: |
+          ~/.npm
+          node_modules
+       key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+       restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Build Angular Docker Image
+      if: ${{ inputs.build-artifacts == true }}
+      run: |
+        # Build the Angular image using the Dockerfile in the specified path
+        docker build \
+            -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ steps.set_tag.outputs.build-tag }} \
+            -f Dockerfile .
+
+    - name: Tag Docker Image as latest
+      if: ${{ inputs.build-artifacts == true }}
+      run: |
+        docker tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ steps.set_tag.outputs.build-tag }} \
+          ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ vars.ENV_NAME }}-latest
+
+    - name: Push Docker Image to registry
+      if: ${{ inputs.build-artifacts == true }}
+      run: |
+        echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ steps.set_tag.outputs.build-tag }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:${{ vars.ENV_NAME }}-latest
