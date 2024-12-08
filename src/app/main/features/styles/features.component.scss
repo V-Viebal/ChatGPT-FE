@@ -109,11 +109,23 @@
 			border-radius: .8rem 0 0 .8rem;
 			box-shadow: 0 2px 6px white;
 			margin-bottom: 1.2rem;
+			padding: unset !important;
 		}
 
 		.p-dock {
 			display: flex;
-			align-items: end;
+			align-items: flex-end;
+
+			.p-dock-list-container {
+				background: unset;
+				border: none;
+				padding: unset;
+				border-radius: unset;
+
+				.p-dock-link {
+					text-decoration: none !important;
+				}
+			}
 
 			.p-dock-action {
 				width: 2rem;

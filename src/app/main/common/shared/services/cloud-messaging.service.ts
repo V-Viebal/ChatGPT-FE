@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ENVIRONMENT } from 'environments/environment';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { from, Observable } from 'rxjs';
+import { ENVIRONMENT } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root',

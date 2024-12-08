@@ -1,5 +1,6 @@
 {
 	"compileOnSave": false,
+	"exclude": ["node_modules", "tmp", "dist"],
 	"compilerOptions": {
 		"sourceMap": true,
 		"declaration": false,
@@ -18,7 +19,21 @@
 		"typeRoots": ["node_modules/@types"],
 		"target": "es2022",
 		"module": "es2022",
-		"lib": [ "es2022", "dom", "dom.iterable", "webworker" ]
+		"lib": [ "es2022", "dom", "dom.iterable", "webworker" ],
+		"baseUrl": "./src",
+		"paths": {
+			"@main": ["app/main"],
+			"@main/*": ["app/main/*"],
+			"@resources": ["app/resources"],
+			"@resources/*": ["app/resources/*"],
+			"@core": ["app/@core"],
+			"@core/*": ["app/@core/*"],
+			"@error": ["app/@error"],
+			"@error/*": ["app/@error/*"],
+			"@cub": ["app/@cub"],
+			"@cub/*": ["app/@cub/*"],
+			"@environments": ["environments"],
+			"@environments/*": ["environments/*"],
+		},
 	},
-	"exclude": ["node_modules", "tmp", "dist"]
 }

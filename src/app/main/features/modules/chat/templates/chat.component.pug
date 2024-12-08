@@ -484,7 +484,7 @@ p-dialog(
 							[pTooltip]='"LABEL.SAVE" | translate',
 							(click)='createNewPreset()')
 							| {{ "LABEL.SAVE" | translate }}
-					form#presetForm.flex.flex-column.p-2([formGroup]='presetForm', (submit)='save()')
+					form#presetForm.flex.flex-column.p-2([formGroup]='presetForm')
 						.flex.p-float-label.mb-4.mt-1
 							input.flex-grow-1(pInputText, id='presetName', [formControl]='presetForm?.controls?.presetName')
 							label(htmlFor='presetName')
@@ -538,11 +538,12 @@ p-dialog(
 								? ( "LABEL.DEFAULT_PRESET" | translate ) + " (" + tempPresets?.length + ")" \
 								: ( "LABEL.DEFAULT_PRESET" | translate ) + " (" + presets?.length + ")"')
 							p-orderList(
+								ngDefaultControl,
 								metaKeySelection='false',
 								[listStyle]='{ "max-height": "35vh", "min-height": "35vh" }',
 								[dragdrop]='true',
 								[selection]="[presetSelected]",
-								[(value)]='searchInput?.value?.length > 0 ? tempPresets : presets',
+								[(ngModel)]='searchInput?.value?.length > 0 ? tempPresets : presets',
 								(onReorder)='onPresetReorder()',
 								(selectionChange)='onPresetChange( $event )')
 								ng-template(let-preset, pTemplate='item')
@@ -561,12 +562,13 @@ p-dialog(
 							div(style={ 'min-height': '30vh' })
 								ng-container(*ngIf='customPresets?.length > 0 || tempCustomPresets?.length > 0, else elseBlock')
 									p-orderList(
+										ngDefaultControl,
 										metaKeySelection='false',
 										[listStyle]='{ "max-height": "30vh", "min-height": "30vh" }',
 										[dragdrop]='true',
 										[selection]="[presetSelected]",
-										[(value)]='tempCustomPresets?.length > 0 ? tempCustomPresets : customPresets',
-										(onReorder)='onPresetReorder( $event )',
+										[(ngModel)]='tempCustomPresets?.length > 0 ? tempCustomPresets : customPresets',
+										(onReorder)='onPresetReorder()',
 										(selectionChange)='onPresetChange( $event )')
 										ng-template(let-preset, pTemplate='item')
 											.item-name.flex.align-items-center.justify-content-start.p-2.w-full.flex-wrap

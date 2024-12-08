@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { ISession, IUsage } from '../interfaces';
 import { Observable } from 'rxjs';
-import { ISocialProfile } from 'app/main/auth/services/auth.service';
+import { ISocialProfile } from '@main/auth/services/auth.service';
 import { IPresets } from '../interfaces/preset.interface';
 import { TranslateService } from '@ngx-translate/core';
 import _ from 'lodash';

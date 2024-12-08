@@ -14,7 +14,6 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { FeaturesModule } from './main/features/features.module';
 
-import { ENVIRONMENT } from 'environments/environment';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { AngularFireStorageModule } from '@angular/fire/compat/storage';
@@ -22,6 +21,7 @@ import { FIREBASE_OPTIONS, AngularFireModule  } from '@angular/fire/compat';
 import { AuthModule } from './main/auth/auth.module';
 import { SharedModule } from './main/common/shared/shared.module';
 import { DatePipe } from '@angular/common';
+import { ENVIRONMENT } from '@environments/environment';
 
 const ServiceWorkerModule = SWkerModule.register('ngsw-worker.js', {
   enabled: !isDevMode(),
@@ -58,13 +58,15 @@ export function HttpLoaderFactory(http: HttpClient) {
 
     ServiceWorkerModule,
 
-    provideFirebaseApp(() => initializeApp( ENVIRONMENT.FIREBASE_CONFIG )),
-    provideFirestore(() => getFirestore()),
-
     AngularFireModule.initializeApp( ENVIRONMENT.FIREBASE_CONFIG ),
     AngularFireStorageModule
   ],
-  providers: [ { provide: FIREBASE_OPTIONS, useValue: ENVIRONMENT.FIREBASE_CONFIG }, DatePipe ],
+  providers: [
+    provideFirebaseApp(() => initializeApp( ENVIRONMENT.FIREBASE_CONFIG )),
+    provideFirestore(() => getFirestore()),
+    { provide: FIREBASE_OPTIONS, useValue: ENVIRONMENT.FIREBASE_CONFIG },
+    DatePipe
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

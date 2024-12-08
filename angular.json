@@ -20,6 +20,9 @@
 						"main": "src/main.ts",
 						"tsConfig": "tsconfig.app.json",
 						"inlineStyleLanguage": "scss",
+						"stylePreprocessorOptions": {
+							"includePaths": [""]
+						},
 						"aot": false,
 						"optimization": false,
 						"sourceMap": true,
@@ -62,6 +65,9 @@
 						]
 					},
 					"configurations": {
+						"aot": {
+							"aot": true
+						},
 						"production": {
 							"outputHashing": "all",
 							"aot": true,
@@ -91,20 +97,29 @@
 				},
 				"serve": {
 					"builder": "@angular-builders/custom-webpack:dev-server",
+					"options": {
+						"buildTarget": "chat-mons-kane:build",
+						"host": "0.0.0.0",
+						"port": 8000,
+						"open": true,
+						"publicHost": "http://localhost:8000"
+					},
 					"configurations": {
+						"aot": {
+							"buildTarget": "chat-mons-kane:build:aot"
+						},
 						"production": {
-							"browserTarget": "chat-mons-kane:build:production"
+							"buildTarget": "chat-mons-kane:build:production"
 						},
 						"development": {
-							"browserTarget": "chat-mons-kane:build:development"
+							"buildTarget": "chat-mons-kane:build:development"
 						}
-					},
-					"defaultConfiguration": "development"
+					}
 				},
 				"extract-i18n": {
 					"builder": "@angular-builders/custom-webpack:extract-i18n",
 					"options": {
-						"browserTarget": "chat-mons-kane:build"
+						"buildTarget": "chat-mons-kane:build"
 					}
 				}
 			}

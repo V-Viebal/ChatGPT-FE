@@ -3,7 +3,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { IUser } from '../../features/modules/chat/interfaces/user.interface';
 import { BehaviorSubject, Observable, Observer } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { ENVIRONMENT } from 'environments/environment';
+import { ENVIRONMENT } from '@environments/environment';
 
 export interface ISocialProfile {
 	id: string;

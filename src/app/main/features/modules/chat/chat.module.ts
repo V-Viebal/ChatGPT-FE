@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MarkdownModule } from 'ngx-markdown';
-import { SharedModule } from 'app/main/common/shared/shared.module';
+import { SharedModule } from '@main/common/shared/shared.module';
 import { ChatRoutingModule } from './chat-routing.module';
 import { ChatComponent } from './components/chat.component';
 import { TranslateModule } from '@ngx-translate/core';

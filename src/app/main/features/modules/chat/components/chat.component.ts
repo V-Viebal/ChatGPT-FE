@@ -14,15 +14,15 @@ import { IUser } from '../interfaces/user.interface';
 import { ChatGptService } from '../services/chat-gpt.service';
 import { ICompletion, IMessage, IPresets, ISession, IUsage } from '../interfaces';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { AuthService, ISocialProfile } from 'app/main/auth/services/auth.service';
-import { ENVIRONMENT } from 'environments/environment';
-import { CONSTANT } from 'app/main/auth/resources';
+import { AuthService, ISocialProfile } from '@main/auth/services/auth.service';
+import { CONSTANT } from '@main/auth/resources';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Platform } from '@angular/cdk/platform';
-import { FeaturesService } from 'app/main/features/services/features.service';
+import { FeaturesService } from '@main/features/services/features.service';
 import { HttpEventType } from '@angular/common/http';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MindsetType } from '../resources';
+import { ENVIRONMENT } from '@environments/environment';
 
 const favicon = <HTMLLinkElement>document.getElementById('favicon');
 
@@ -90,6 +90,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
 	tempPresets: IUsage[];
 	tempCustomPresets: IUsage[];
 	mindsets: any;
+	searchInput: any;
 
 	constructor(
 		private _confirmationService: ConfirmationService,
@@ -754,7 +755,7 @@ export class ChatComponent implements OnInit, AfterViewChecked, OnDestroy {
 		this._cdr.markForCheck();
 	}
 
-	public createNewSession( isQuickCreate: boolean ) {
+	public createNewSession( isQuickCreate?: boolean ) {
 		this._cdr.markForCheck();
 		if ( !this.profile ) return;
 

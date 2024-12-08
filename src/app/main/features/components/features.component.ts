@@ -5,14 +5,14 @@ import { TranslateService } from '@ngx-translate/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { AuthService, ISocialProfile } from '../../auth/services/auth.service';
 import { ChatService } from '../modules/chat/services/chat.service';
-import { ENVIRONMENT } from 'environments/environment';
 import { ISystem, SystemService } from '../../common/shared/services/system.service';
 import { finalize }  from 'rxjs/operators';
 import { Subscription }  from 'rxjs';
-import { CONSTANT } from 'app/main/auth/resources';
-import { CONSTANT as SHARED_CONSTANT } from 'app/main/common/shared/resources';
+import { CONSTANT as SHARED_CONSTANT } from '@main/common/shared/resources';
 import { IUser } from '../modules/chat/interfaces';
 import { FeaturesService } from '../services/features.service';
+import { ENVIRONMENT } from '@environments/environment';
+import { CONSTANT } from '@main/auth/resources';
 
 declare const google: any;
 declare const gapi: any;
