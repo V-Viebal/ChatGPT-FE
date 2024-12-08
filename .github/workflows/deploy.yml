@@ -1,0 +1,173 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: false
+        default: ''
+      build-tag:
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+  
+jobs:
+  validate:
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        runner: [ template-01 ] # list of runner's labels
+    continue-on-error: true  # Allows each matrix job to continue even if one fails
+    environment: ${{ inputs.environment }}
+    steps:
+    - name: Check disk space
+      run: |
+        EXCLUDE_LIST="/snap|/boot/efi|/run|/dev"
+        df -h | grep -E -v "${EXCLUDE_LIST}" | awk '$5+0 > 90 {print "Disk space is above 90% on "$6" with "$5" used."; exit 1}'
+        echo "Disk space is within acceptable limits."
+      shell: bash
+    
+    - name: Ensure Docker is running
+      run: |
+        if ! docker info > /dev/null 2>&1; then
+            echo "Docker is not running on this host."
+            exit 1
+        fi
+
+    - name: Test network connectivity to Docker Hub
+      run: |
+        if ! curl -fsSL https://hub.docker.com > /dev/null; then
+          echo "Cannot reach Docker Hub. Check network connectivity."
+          exit 1
+        fi
+
+  deploy:
+    runs-on: ${{ matrix.runner }}
+    needs: validate
+    strategy:
+      matrix:
+        runner: [ template-01 ] # list of runner's labels
+    continue-on-error: true  # Allows each matrix job to continue even if one fails
+    environment: ${{ inputs.environment }}
+    steps:
+    - uses: actions/checkout@v4
+      name: Checkout code
+
+    - name: Create .env file with environment variables
+      run: |
+        # Create the .env file in the specified APP_PATH
+        mkdir -p ${{ secrets.APP_PATH }}
+        ENV_CONFIG=${{ secrets.APP_PATH }}/.env
+        rm -rf $ENV_CONFIG
+        touch $ENV_CONFIG
+        
+        echo "APP_PATH=${{ secrets.APP_PATH }}" >> $ENV_CONFIG
+        echo "ENV_CONFIG=$ENV_CONFIG" >> $ENV_CONFIG
+        echo "ENV_NAME=${{ inputs.environment }}" >> $ENV_CONFIG
+        echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> $ENV_CONFIG
+        echo "DOCKER_REPO=${{ secrets.DOCKER_REPO }}" >> $ENV_CONFIG
+        echo "BUILD_TAG=${{ inputs.build-tag }}" >> $ENV_CONFIG
+        echo "DOCKER_FILE_PORT=${{ vars.DOCKER_FILE_PORT }}" >> $ENV_CONFIG
+        echo "SERVICE_PORT=${{ vars.SERVICE_PORT }}" >> $ENV_CONFIG
+        echo "SERVICE_NAME=${{ vars.SERVICE_NAME }}" >> $ENV_CONFIG
+        echo "SERVICE_DOMAIN=${{ vars.SERVICE_DOMAIN }}" >> $ENV_CONFIG
+       
+        # Export variables for later steps
+        cat $ENV_CONFIG | while read line; do
+          echo "$line" >> $GITHUB_ENV
+        done
+        
+    - name: Pull Docker Image
+      run: |
+        echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        docker pull $DOCKER_USERNAME/$DOCKER_REPO:$BUILD_TAG
+    
+    # # install jq (json parser tool)
+    # - name: install jq
+      # run: |
+          # sudo apt-get update
+          # sudo apt-get install -y jq    
+          
+    # Retain the latest two images and remove the rest locally
+    - name: Remove old Docker images locally, retain two latest and running
+      continue-on-error: true
+      run: |
+          current_tag="$BUILD_TAG"
+          
+          # Get the list of running image tags
+          running_tag=$(docker ps --format '{{.Image}}' | grep "$DOCKER_USERNAME/$DOCKER_REPO:$ENV_NAME" | awk -F ':' '{print $2}' | head -n 1)
+          if [ -z "$running_tag" ]; then
+            echo "No running containers found. Skipping running tag exclusion."
+          else
+            echo "Currently running image tag: $running_tag"
+          fi
+          # Get all images filtered by environmentName, sorted by creation date, exclude the one being deployed and currently running
+          all_images=$(docker images --filter=reference='$DOCKER_USERNAME/$DOCKER_REPO:$ENV_NAME*' --format "{{.Repository}}:{{.Tag}} {{.CreatedAt}} {{.ID}}" | sort -k 2 -r)
+          # Exclude the currently deployed and running images
+          old_images=$(echo "$all_images" | grep -v "$current_tag" | grep -v "$running_tag" | awk '{print $NF}')  # $NF gets the last field (image ID)
+          if [ -z "$old_images" ]; then
+            echo "No old images to clean up."
+          else
+            # Retain the latest two images (currently running and deployed images)
+            echo "$old_images" | while read image_id; do
+              echo "Removing old image locally: $image_id"
+              docker rmi -f $image_id || echo "Failed to remove image $image_id, it might be in use."
+            done  
+          fi
+          
+    # Remove old Docker images from Docker Hub, retain two latest and running
+    - name: Remove old Docker images from Docker Hub, retain two latest and running
+      continue-on-error: true    
+      run: |
+          repo="$DOCKER_USERNAME/$DOCKER_REPO"
+          current_tag="$BUILD_TAG"
+          
+          # Get the tag of the currently running container
+          running_tag=$(docker ps --format '{{.Image}}' | grep "$DOCKER_USERNAME/$DOCKER_REPO:$ENV_NAME" | awk -F ':' '{print $2}' | head -n 1)
+          
+          if [ -z "$running_tag" ]; then
+            echo "No running container found. Skipping running tag exclusion."
+          else
+            echo "Currently running image tag: $running_tag"
+          fi
+          echo "Current deployed image tag: $current_tag"
+          # Get all tags filtered by environmentName from Docker Hub, sorted by pushed date
+          old_tags=$(curl -s -u "$DOCKER_USERNAME:${{ secrets.DOCKER_TOKEN }}" \
+          "https://hub.docker.com/v2/repositories/${repo}/tags/?page_size=100" \
+          | jq -r '.results[] | "\(.name) \(.tag_last_pushed)"' | sort -k 2 -r | awk '{print $1}' | grep "$ENV_NAME" | grep -v $current_tag)
+          # If running_tag is not empty, exclude it
+          if [ -n "$running_tag" ]; then
+            old_tags=$(echo "$old_tags" | grep -v "$running_tag")
+          fi
+          # Retain the latest two tags (after excluding the currently running and deployed images)
+          echo "$old_tags" | tail -n +2 | while read tag; do
+              echo "Attempting to delete old image with tag: $tag from Docker Hub"
+              response=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE -H "Authorization: Bearer ${{ secrets.DOCKER_TOKEN }}" \
+                  "https://hub.docker.com/v2/repositories/${repo}/tags/$tag")
+              if [ "$response" -eq 204 ]; then
+                  echo "Deleted image with tag: $tag from Docker Hub"
+              else
+                  echo "Failed to delete image with tag: $tag from Docker Hub. HTTP status: $response"
+              fi
+          done
+          
+    - name: Set up environment variables for Docker Compose
+      run: |
+        echo "ENV_NAME=$ENV_NAME" >> .env
+        
+    - name: Deploy Service
+      run: |
+        echo "Starting Docker Compose..."
+        if docker stack ls | grep -q $SERVICE_NAME; then
+            echo "Removing existing stack: $SERVICE_NAME"
+            docker stack rm $SERVICE_NAME
+            sleep 10  # Wait for the stack to shut down completely
+        else
+            echo "No running stack found for $SERVICE_NAME. Skipping removal."
+        fi
+        echo "Deploying stack: $SERVICE_NAME"
+        docker stack deploy $SERVICE_NAME -c docker-compose.yml
