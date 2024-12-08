@@ -1,0 +1,9 @@
+ngx-spinner(
+	bdColor="rgba(0, 0, 0, 0.95)",
+	size="medium",
+	color="#fff",
+	type="square-jelly-box",
+	[fullScreen]="true")
+	p(style="color: white") Đang tải...
+div.h-100(*ngIf="isLoaded")
+	router-outlet

@@ -1,0 +1,512 @@
+@import 'scss/stylesheets/variables.scss';
+
+:host {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	min-width: 0;
+	height: 100%;
+	min-height: 0;
+
+	::ng-deep {
+		.custom-bar p-button {
+			flex-basis: 50%;
+
+			.custom-bar_button {
+				flex-grow: 1;
+				padding: 0.75rem 2rem;
+				border-radius: .8rem;
+				border: none;
+				transition-property: color,background-color,border-color,text-decoration-color,fill,stroke;
+				transition-timing-function: linear;
+				transition-duration: .5s;
+
+				&:focus {
+					box-shadow: none;
+				}
+			}
+		}
+
+		.google-button {
+			margin: 20px auto 10px;
+			display: flex;
+			border-radius: 1rem;
+			border: none;
+			padding: .5rem 1rem;
+		}
+
+		.google-button-clicked {
+			margin: 20px auto 10px;
+			display: flex;
+			border-radius: 1rem;
+			border: none;
+			background-color: transparent;
+		}
+
+		.h-60 {
+			height: 60px;
+		}
+
+		.p-speeddial-list {
+			display: none;
+			top: 75px;
+			position: absolute;
+		}
+
+		.p-speeddial-opened .p-speeddial-list {
+			display: unset;
+		}
+
+		.p-speeddial-button {
+			width: 2.2rem !important;
+			height: 2.2rem !important;
+			top: 40px;
+
+			span {
+				font-size: 1rem !important;
+			}
+		}
+
+		.p-speeddial-button--hidden > .p-speeddial-button {
+			display: none;
+		}
+
+		.p-speeddial-action {
+			width: 2.2rem !important;
+			height: 2.2rem !important;
+			text-decoration: none;
+
+			&:hover {
+				background-color: color(darkGray, 500);
+			}
+		}
+
+		.p-button:focus {
+			box-shadow: 0 0 0 2px color(lightGray, 700), 0 0 0 4px color(darkGray, 500), 0 1px 2px 0 black;
+		}
+
+		.p-button.p-highlight,
+		.p-button.p-highlight:hover {
+			background: color(darkGray, 500);
+			border-color: color(darkGray, 500);
+		}
+
+		.p-dialog {
+			width: 47%;
+			max-height: 92%;
+
+			.p-dialog-content{
+				padding: 1rem;
+			}
+		}
+
+		.p-dock-list {
+			border: none;
+			background-color: rgba(0, 0, 0, 0.01);
+			backdrop-filter: blur(5px);
+			-webkit-backdrop-filter: blur(5px);
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			border-radius: .8rem 0 0 .8rem;
+			box-shadow: 0 2px 6px white;
+			margin-bottom: 1.2rem;
+		}
+
+		.p-dock {
+			display: flex;
+			align-items: end;
+
+			.p-dock-action {
+				width: 2rem;
+				height: 2rem;
+				text-decoration: none;
+				cursor: pointer;
+
+				i {
+					font-size: 2rem !important;
+				}
+			}
+
+			.p-dock-item-current {
+				margin: .6rem 0;
+				transform: scale(1.6);
+			}
+
+			.p-dock-item-prev,
+			.p-dock-item-next {
+				margin: .3rem 0;
+				transform: scale(1.2);
+			}
+
+			.p-dock-item-second-prev,
+			.p-dock-item-second-next {
+				margin: .3rem 0;
+				transform: scale(1.1);
+			}
+		}
+
+		.p-speeddial {
+			display: none;
+		}
+
+		.p-toast {
+			opacity: 0.96 !important;
+			width: 30rem !important;
+		}
+
+		.p-toast-message-content {
+			padding: 1rem 1rem 1rem 2.5rem !important;
+		}
+	}
+}
+
+.section {
+	position: relative;
+	height: 100%;
+
+	.speed-dial-container {
+		display: flex;
+		position: fixed;
+		z-index: 1;
+		left: 2px;
+	}
+
+	.custom-bar {
+		height: 3rem;
+		width: 22rem;
+		position: absolute;
+		bottom: 0;
+		margin-bottom: 1.4rem;
+		margin-left: 1.2rem;
+		padding: .3rem;
+		box-shadow: 0 2px 6px white;
+		backdrop-filter: blur(5px);
+		-webkit-backdrop-filter: blur(5px);
+		border-radius: 1rem;
+	}
+}
+
+[data-theme="light"] :host ::ng-deep{
+	.custom-bar {
+		background: rgb(231 231 231 / 10%);
+
+		p-button {
+
+			.custom-bar_button {
+				color: color(darkGray, 700);
+				background: rgb(231 231 231 / 1%);
+			}
+
+			.custom-bar_button--active {
+				background: color(lightGray, 200);
+			}
+		}
+	}
+
+	.save-button {
+		color: color(darkGray, 700);
+		background: color(lightGray, 300) !important;
+		border: solid 1px color(darkGray, 700) !important;
+		width: 100%;
+
+		&:hover {
+			background: color(lightGray, 500) !important;
+			border: solid 1px color(darkGray, 200) !important;
+			color: color(darkGray, 700);
+			box-shadow: 0 0 0 2px color(lightGray, 700), 0 0 0 4px color(darkGray, 500), 0 1px 2px 0 color(darkGray, 700);
+		}
+	}
+
+	.google-button {
+		color: color(darkGray, 300);
+		background-color: color(lightGray, 400);
+
+		&:focus {
+			border: 1px solid color(darkGray, 700);
+			color: color(darkGray, 700);
+		}
+	}
+
+	.google-button-clicked {
+		color: color(darkGray, 500);
+	}
+	.p-dialog,
+	.p-dialog-header,
+	.p-dialog-content {
+		background-color: rgba( 255, 255, 255, 0.8);
+		backdrop-filter: blur(6px);
+		-webkit-backdrop-filter: blur(10px);
+		color: color(darkGray, 700);
+	}
+
+	.p-button.p-button-outlined {
+		background-color: rgba( 255,255,255, 0.2);
+		backdrop-filter: blur(2px);
+		-webkit-backdrop-filter: blur(10px);
+		color: color(darkGray, 200);
+
+		&:enabled:active,
+		&:hover {
+			color: color(darkGray, 500);
+		}
+
+		&:focus {
+			color: color(darkGray, 700);
+			box-shadow: 0 0 0 2px color(lightGray, 700), 0 0 0 4px color(darkGray, 500), 0 1px 2px color(darkGray, 700);
+		}
+	}
+
+	.p-card {
+		color: color(darkGray, 700);
+		background-color: transparent;
+	}
+
+	.p-dialog-header-icon {
+		color: color(darkGray, 700) !important;
+
+		&:enabled:hover {
+			background: color(lightGray, 200) !important;
+		}
+	}
+
+	.p-inputswitch.p-focus .p-inputswitch-slider {
+		box-shadow: 0 0 0 0.2rem color(darkGray, 200);
+	}
+
+	.p-inputswitch-slider,
+	.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider,
+	.p-inputswitch.p-inputswitch-checked:not(.p-disabled):hover .p-inputswitch-slider {
+		background-color: color(darkGray, 500) !important;
+	}
+
+	.p-inputswitch .p-inputswitch-slider:before,
+	.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
+		background: color(lightGray, 700)
+	}
+
+	#dock-icon {
+		font-size: 2rem;
+		color: color(darkGray, 200);
+	}
+
+	.p-dock-item-current a i {
+		color: color(darkGray, 700) !important;
+	}
+
+	.infor-account {
+		color: color(darkGray, 700);
+
+		.blur {
+			font-size: 14px;
+			opacity: 0.5;
+		}
+
+		.logout {
+			text-decoration: underline;
+			cursor: pointer;
+			font-weight: 600;
+			color: color(darkGray, 500);
+		}
+
+		.logout:hover {
+			color: color(darkGray, 700);
+		}
+	}
+
+	.p-toast .p-toast-message.p-toast-message-info {
+		background: color(lightGray, 700);
+		color: color(darkGray, 700);
+		border: solid color(lightGray, 700) !important;
+		border-width: 0 0 0 6px !important;
+	}
+
+	.p-toast-icon-close {
+		color: color(darkGray, 700) !important;
+
+		&:focus {
+			box-shadow: 0 0 0 0.2rem color(darkGray, 700) !important;
+		}
+	}
+}
+
+[data-theme="dark"] :host ::ng-deep{
+	.custom-bar {
+		background: rgb(104 104 104 / 10%);
+
+		p-button {
+
+			.custom-bar_button {
+				color: color(lightGray, 700);
+				background: rgb(104 104 104 / 1%);
+			}
+
+			.custom-bar_button--active {
+				background: color(darkGray, 400);
+			}
+		}
+	}
+
+	.save-button {
+		background: color(darkGray, 300) !important;
+		border: solid 1px color(lightGray, 700) !important;
+		color: color(lightGray, 700);
+		width: 100%;
+
+		&:hover {
+			background: color(darkGray, 400) !important;
+			border: solid 1px color(lightGray, 200) !important;
+			color: color(lightGray, 700);
+			box-shadow: 0 0 0 2px color(darkGray, 700), 0 0 0 4px color(lightGray, 500), 0 1px 2px 0 color(lightGray, 700);
+		}
+	}
+
+	.google-button {
+		color: color(lightGray, 300);
+		background-color: color(darkGray, 700);
+
+		&:focus {
+			border: 1px solid color(lightGray, 700);
+			color: color(lightGray, 700);
+		}
+	}
+
+	.google-button-clicked {
+		color: color(lightGray, 500);
+	}
+
+	.p-dialog,
+	.p-dialog-header,
+	.p-dialog-content {
+		background-color: rgba( 255,255,255, 0.2);
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		color: color(lightGray, 700);
+	}
+
+	.p-button.p-button-outlined {
+		background-color: rgba( 0,0,0, 0.2);
+		backdrop-filter: blur(2px);
+		-webkit-backdrop-filter: blur(10px);
+		color: color(lightGray, 200);
+
+		&:enabled:active,
+		&:hover {
+			color: color(lightGray, 500);
+		}
+
+		&:focus {
+			color: color(lightGray, 700);
+			box-shadow: 0 0 0 2px color(darkGray, 700), 0 0 0 4px color(lightGray, 700), 0 1px 2px color(lightGray, 500);
+		}
+	}
+
+	.p-card {
+		color: color(lightGray, 700);
+		background-color: transparent;
+	}
+
+	.p-dialog-header-icon {
+		color: color(lightGray, 700) !important;
+
+		&:enabled:hover {
+			background: color(darkGray, 500) !important;
+		}
+	}
+
+	.p-inputswitch.p-focus .p-inputswitch-slider {
+		box-shadow: 0 0 0 0.2rem color(lightGray, 200);
+	}
+
+	.p-inputswitch-slider,
+	.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider,
+	.p-inputswitch.p-inputswitch-checked:not(.p-disabled):hover .p-inputswitch-slider {
+		background-color: color(lightGray, 500) !important;
+	}
+
+	.p-inputswitch .p-inputswitch-slider:before,
+	.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
+		background: color(darkGray, 700)
+	}
+
+	#dock-icon {
+		font-size: 2rem;
+		color: color(lightGray, 700);
+	}
+
+	.p-dock-item-current a i {
+		color: color(lightGray, 400) !important;
+	}
+
+	.infor-account {
+		color: color(lightGray, 700);
+
+		.blur {
+			font-size: 14px;
+			opacity: 0.5;
+		}
+
+		.logout {
+			text-decoration: underline;
+			cursor: pointer;
+			font-weight: 600;
+			color: color(darkGray, 500);
+		}
+
+		.logout:hover {
+			color: color(darkGray, 700);
+		}
+	}
+
+	.p-toast .p-toast-message.p-toast-message-info {
+		background: color(darkGray, 500);
+		color: color(lightGray, 700);
+		border: solid color(darkGray, 700) !important;
+		border-width: 0 0 0 6px !important;
+	}
+
+	.p-toast-icon-close {
+		color: color(lightGray, 700) !important;
+
+		&:focus {
+			box-shadow: 0 0 0 0.2rem color(lightGray, 700) !important;
+		}
+	}
+}
+
+
+.infor-account {
+	word-break: break-word;
+}
+
+@media only screen and (max-width: 1200px),
+		only screen and (max-height: 600px) {
+	:host ::ng-deep {
+		.custom-bar {
+			display: none !important;
+		}
+
+		.p-dialog {
+			width: 95%;
+			max-height: 80%;
+
+			.p-dialog-content{
+				padding: unset;
+			}
+		}
+
+		.p-card-body {
+			padding: 0.5rem;
+		}
+
+		.p-dock {
+			display: none;
+		}
+
+		.p-speeddial {
+			display: flex;
+		}
+
+		.p-buttonset .p-button {
+			padding: .5rem 1rem !important;
+		}
+	}
+}

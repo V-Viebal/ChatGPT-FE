@@ -1,0 +1,90 @@
+@import './variables.scss';
+
+*:not(:hover):not(:active):not(:focus) {
+	&::-webkit-scrollbar,
+  &::-webkit-scrollbar-track {
+		background-color: transparent;
+	}
+
+  &::-webkit-scrollbar-thumb {
+	background-color: transparent;
+  }
+}
+
+::-webkit-scrollbar {
+	height: 10px;
+	width: 10px;
+	background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+
+	&:vertical {
+		min-height: 60px;
+	}
+
+	&:horizontal {
+		min-width: 60px;
+	}
+}
+
+[data-theme="light"] {
+
+	code:not([class*="language-"]) {
+		color: color(darkGray, 700);
+	}
+
+	markdown {
+		table th,
+		table td {
+			border-color: color(darkGray, 700);
+		}
+
+		table th {
+			background-color:color(lightGray, 500);
+		}
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: color(lightGray, 200);
+	}
+}
+
+[data-theme="dark"] {
+
+	code:not([class*="language-"]) {
+		color: color(lightGray, 900);
+	}
+
+	markdown {
+		table th,
+		table td {
+			border-color: color(lightGray, 700);
+		}
+
+		table th {
+			background-color:color(darkGray, 500);
+		}
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: color(darkGray, 200);
+	}
+}
+
+#favicon::after {
+	content: "";
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background-color: red;
+}
+
+#favicon.has-new-message::after {
+	display: block;
+}

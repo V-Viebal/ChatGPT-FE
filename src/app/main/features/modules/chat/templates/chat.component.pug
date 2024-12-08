@@ -1,0 +1,582 @@
+p-confirmPopup
+p-toast(key='delete-error', [position]='isScreenSizeSmall ? "center" : "top-right"')
+p-toast([position]='isScreenSizeSmall ? "center" : "top-right"')
+
+p-toast#hint(
+	key='save',
+	[preventDuplicates]='true',
+	[breakpoints]='{"1200px": {width: "100%", right: "unset", left: "unset", bottom: "-15px", top: "unset"}}',
+	[baseZIndex]='100000',
+	(onClose)='clearToast()')
+	ng-template(
+		let-message,
+		pTemplate='message')
+		.flex.flex-column(style='flex: 1')
+			.text-center
+				i.mb-2(class='pi pi-exclamation-triangle', style='font-size: 3rem')
+				h4 {{ "LABEL.SAVE_TITLE" | translate }}
+			.grid.p-fluid.mt-3.reverse
+				.col-6.small-size
+					button(
+						pButton,
+						type='button',
+						class='p-button-secondary cancel-button',
+						[icon]='isGoogleSubmitting ? "pi pi-spin pi-spinner" : ""',
+						[disabled]='isGoogleSubmitting',
+						[label]='!isGoogleSubmitting ? ( "LABEL.NOSAVE" | translate ) : ""',
+						(click)='clearToast()')
+				.col-6.small-size
+					button(
+						pButton,
+						type='button',
+						class='p-button-success save-button',
+						[disabled]='isGoogleSubmitting',
+						[icon]='isGoogleSubmitting ? "pi pi-spin pi-spinner" : ""',
+						[label]='!isGoogleSubmitting ? ( "LABEL.SAVE" | translate ) : ""',
+						(click)='!isScreenSizeSmall ? showPrompt() : signInByGoogle()')
+
+p-dialog(
+	(onHide)='hideSessionDialog()',
+	(onShow)='openSessionDialog()',
+	[header]='"LABEL.SESSION_HEADER" | translate',
+	[modal]='true',
+	[draggable]='false',
+	[resizable]='false',
+	[dismissableMask]='true',
+	[(visible)]='isShowSessionDialog',
+)
+	.flex.flex-column.timeline.timeline-dialog
+		.timeline-content
+			button.flex.justify-content-start.align-items-start(
+				*ngIf='!isInputSessionName',
+				class='p-button-rounded p-button-text create-session button',
+				(click)='createSessionFromButton()')
+				.flex.justify-content-between.align-items-center.w-100
+					.flex {{ "LABEL.CREATE_SESSION" | translate }}
+					i.flex(class="pi pi-plus px-2")
+			.p-inputgroup.create-session(*ngIf='isInputSessionName')
+				input.session-name-input(
+					pAutoFocus,
+					type='text',
+					pInputText,
+					(keydown.enter)='createNewSession()',
+					[autofocus]='true',
+					[placeholder]='"PLACEHOLDER.INPUT_SESSION_NAME" | translate',
+					[(ngModel)]='tempSessionName')
+				button.session-name-button(
+					type='button',
+					pButton,
+					icon='pi pi-times',
+					styleClass='p-button-warn',
+					(click)='isInputSessionName=false')
+				button.session-name-button(
+					type='button',
+					pButton,
+					icon='pi pi-check',
+					styleClass='p-button-warn',
+					[disabled]='!tempSessionName',
+					(click)='createNewSession()')
+				button.session-name-button.session-name-button_quick.w-4rem(
+					type='button',
+					pButton,
+					icon='pi pi-bolt',
+					tooltipPosition="bottom",
+					[pTooltip]='"LABEL.QUICK_CREATE" | translate',
+					styleClass='p-button-warn',
+					(click)='$event?.stopPropagation(); createNewSession( true )')
+			ng-container(*ngIf='!isInputSessionName && isShowGGButtonInSession')
+				.placeholder-text.mt-3
+					| {{ "MESSAGE.NEED_TO_LOGIN" | translate }}
+				p-button.flex-50.mh-5(
+					*ngIf='isGoogleSubmitting',
+					icon='pi pi-spin pi-spinner',
+					styleClass='google-button-clicked',
+					[disabled]='isGoogleSubmitting')
+				p-button.flex-50.mh-5(
+					*ngIf='!isGoogleSubmitting',
+					styleClass='google-button',
+					(click)='signInByGoogle()')
+					img(
+						alt='logo'
+						src='assets/images/google.png'
+						style='width: 1.5rem')
+					span(class='ml-2 font-bold') {{ "LABEL.SIGN_IN_BY_GOOGLE" | translate }}
+			p-timeline.flex.justify-content-center.align-items-start.m-2.mt-2.pt-2.overflow-y-auto(
+				*ngIf='profile && sessions && sessions.length > 0',
+				[value]='sessions')
+				ng-template(
+					let-session,
+					pTemplate='content')
+					.flex.justify-content-between.session-button
+						p-button.flex.flex-grow-1.align-items-center(
+							*ngIf='sessionEditing?.id !== session.id, else editSessionName',
+							[styleClass]='\
+							selectedSession && selectedSession.id === session.id\
+							? "p-button-outlined session-button_label session-button_label--active"\
+							: "p-button-outlined session-button_label"',
+							(click)='isResponding ? null : getSession( session.id )')
+							span.text-left([pTooltip]='session?.name')
+								| {{ session?.name }}
+						ng-template(#editSessionName)
+							.p-inputgroup
+								input.session-name-input.flex-grow-1(
+									pAutoFocus,
+									type='text',
+									pInputText,
+									[autofocus]='true',
+									[placeholder]='"PLACEHOLDER.INPUT_SESSION_NAME" | translate',
+									[(ngModel)]='session.name',
+									(keydown.enter)='changeSessionName( session )')
+								button.session-name-button(
+									type='button',
+									pButton,
+									icon='pi pi-times',
+									styleClass='p-button-warn',
+									(click)='cancelEditSessionName()')
+								button.session-name-button(
+									type='button',
+									pButton,
+									icon='pi pi-check',
+									styleClass='p-button-warn',
+									[disabled]='!session.name',
+									(click)='changeSessionName( session )')
+						.flex.flex-column.align-items-center.justify-content-center(*ngIf='!sessionEditing')
+							p-button(
+								styleClass="p-button-rounded p-button-sm p-button-text session-button_action show-default m-2",
+								icon="pi pi-pencil",
+								tooltipPosition="left",
+								[pTooltip]='"LABEL.EDIT" | translate',
+								(onClick)='editSession( session )')
+							p-button(
+								styleClass="p-button-rounded p-button-sm p-button-text session-button_action show-default m-2",
+								icon="pi pi-trash",
+								tooltipPosition="left",
+								[pTooltip]='"LABEL.DELETE" | translate',
+								(onClick)='deleteSession( session, $event )')
+				ng-template(
+					let-session,
+					pTemplate='opposite')
+					small.p-text-secondary {{ session?.createAt | date: 'HH:mm dd/MM/yyyy' }}
+
+.chat-container
+	button(
+		cdkDrag, cdkDragPreviewContainer='parent', cdkDragBoundary='.chat-container',
+		pButton,
+		pRipple,
+		class="p-button-rounded p-button-outlined session-button--dialog",
+		icon="pi pi-clone",
+		[ngClass]='{"session-button--dialog--hidden": !isScrollUp}',
+		(click)='openSessionDialog()')
+	.chat-panel
+		.timeline.flex.flex-column
+			.timeline-content
+				button.flex.justify-content-start.align-items-start(
+					*ngIf='!isInputSessionName',
+					class='p-button-rounded p-button-text create-session button',
+					(click)='createSessionFromButton()')
+					.flex.justify-content-between.align-items-center.w-100
+						.flex {{ "LABEL.CREATE_SESSION" | translate }}
+						i.flex(class="pi pi-plus px-2")
+				.p-inputgroup.create-session(*ngIf='isInputSessionName')
+					input.session-name-input(
+						pAutoFocus,
+						pInputText,
+						type='text',
+						(keydown.enter)='createNewSession()',
+						[autofocus]='true',
+						[placeholder]='"PLACEHOLDER.INPUT_SESSION_NAME" | translate',
+						[(ngModel)]='tempSessionName')
+					button.session-name-button(
+						type='button',
+						pButton,
+						icon='pi pi-times',
+						tooltipPosition="bottom",
+						[pTooltip]='"LABEL.CANCEL" | translate',
+						styleClass='p-button-warn',
+						(click)='cancelNewSessionAction()')
+					button.session-name-button(
+						type='button',
+						pButton,
+						icon='pi pi-check',
+						tooltipPosition="bottom",
+						[pTooltip]='"LABEL.CREATE" | translate',
+						styleClass='p-button-warn',
+						[disabled]='!tempSessionName',
+						(click)='createNewSession()')
+					button.session-name-button.session-name-button_quick.w-4rem(
+						type='button',
+						pButton,
+						icon='pi pi-bolt',
+						tooltipPosition="bottom",
+						[pTooltip]='"LABEL.QUICK_CREATE" | translate',
+						styleClass='p-button-warn',
+						(click)='$event?.stopPropagation(); createNewSession( true )')
+				ng-container(*ngIf='!isInputSessionName && isShowGGButtonInSession')
+					.placeholder-text.mt-3
+						| {{ "MESSAGE.NEED_TO_LOGIN" | translate }}
+					p-button.flex-50.mh-5(
+						*ngIf='isGoogleSubmitting',
+						icon='pi pi-spin pi-spinner',
+						styleClass='google-button-clicked',
+						[disabled]='isGoogleSubmitting')
+					p-button.flex-50.mh-5(
+						*ngIf='!isGoogleSubmitting',
+						styleClass='google-button',
+						(click)='signInByGoogle()')
+						img(
+							alt='logo'
+							src='assets/images/google.png'
+							style='width: 1.5rem')
+						span(class='ml-2 font-bold') {{ "LABEL.SIGN_IN_BY_GOOGLE" | translate }}
+				p-timeline.flex.justify-content-center.align-items-start.m-2.mt-2.pt-2.overflow-y-auto(
+					*ngIf='profile && sessions && sessions.length > 0',
+					[value]='sessions')
+					ng-template(
+						let-session,
+						pTemplate='content')
+						.flex.justify-content-between.session-button
+							p-button.flex.flex-grow-1.align-items-center(
+								*ngIf='sessionEditing?.id !== session.id, else editSessionName',
+								[styleClass]='\
+								selectedSession && selectedSession.id === session.id\
+								? "p-button-outlined session-button_label session-button_label--active"\
+								: "p-button-outlined session-button_label"',
+								(click)='isResponding ? null : getSession( session.id )')
+								span.text-left
+									| {{ session?.name }}
+							ng-template(#editSessionName)
+								.p-inputgroup
+									input.session-name-input(
+										pAutoFocus,
+										type='text',
+										pInputText,
+										[autofocus]='true',
+										[placeholder]='"PLACEHOLDER.INPUT_SESSION_NAME" | translate',
+										[(ngModel)]='session.name',
+										(keydown.enter)='changeSessionName( session )')
+									button.session-name-button(
+										type='button',
+										pButton,
+										icon='pi pi-times',
+										styleClass='p-button-warn',
+										(click)='cancelEditSessionName()')
+									button.session-name-button(
+										type='button',
+										pButton,
+										icon='pi pi-check',
+										styleClass='p-button-warn',
+										[disabled]='!session.name',
+										(click)='changeSessionName( session )')
+							.flex.flex-column.align-items-center.justify-content-center(*ngIf='!sessionEditing')
+								p-button(
+									styleClass="p-button-rounded p-button-sm p-button-text session-button_action m-2",
+									icon="pi pi-pencil",
+									tooltipPosition="left",
+									[pTooltip]='"LABEL.EDIT" | translate',
+									(onClick)='editSession( session )')
+								p-button(
+									styleClass="p-button-rounded p-button-sm p-button-text session-button_action m-2",
+									icon="pi pi-trash",
+									tooltipPosition="left",
+									[pTooltip]='"LABEL.DELETE" | translate',
+									(onClick)='deleteSession( session, $event )')
+					ng-template(
+						let-session,
+						pTemplate='opposite')
+						small.p-text-secondary {{ session?.createAt | date: 'HH:mm dd/MM/yyyy' }}
+		.chat
+			p-button.resize(
+				[icon]='isMaximize ? "pi pi-window-minimize" : "pi pi-window-maximize"',
+				styleClass='p-button-rounded p-button-text resize-button',
+				tooltipPosition="left",
+				[pTooltip]='( isMaximize ? "LABEL.MINIMIZE" : "LABEL.MAXIMIZE" ) | translate',
+				(click)='resize( isMaximize ? false : true )')
+			#messagesContainer.messages((scroll)='onScroll()')
+				ng-container(*ngIf='isSessionGetting, else elseBlock')
+					.m-3.flex.justify-content-end
+						.inline-block.w-8
+							p-skeleton.flex.justify-content-end.mb-2(width='40%')
+							p-skeleton.flex.justify-content-end.mb-2(width='60%')
+							p-skeleton.flex.justify-content-end.mb-2(width='70%')
+						p-skeleton.inline-block.vertical-align-top.ml-2(shape='circle', size='3rem')
+					.m-3.flex.justify-content-start
+						p-skeleton.inline-block.vertical-align-top.mr-2(shape='circle', size='3rem')
+						.inline-block.w-8
+							p-skeleton.block.mb-2(width='40%')
+							p-skeleton.block.mb-2(width='70%')
+							p-skeleton.block.mb-2(width='80%')
+							p-skeleton.block.mb-2(width='95%')
+				ng-template(#elseBlock)
+					.flex.justify-content-center.mt-4(*ngIf='conversation && conversation.length === 0 && !isShowResent')
+						.system-container.flex.flex-column
+							.image
+							b.text-3xl.ml-6 {{ helloText }}_
+					ng-container(*ngFor='let message of conversation')
+						ng-container(*ngIf='message?.role === "user"')
+							.flex.justify-content-end
+								.user.flex.flex-column
+									.flex.flex-row.justify-content-between
+										.flex.align-items-center.justify-content-start
+											p-button.mr-1(
+												styleClass='p-button-rounded p-button-sm p-button-text message_action m-2',
+												icon='pi pi-copy',
+												tooltipPosition='top',
+												[pTooltip]='"LABEL.COPY" | translate',
+												[ngClass]='{"message_action--hidden": !isScrollUp || !isShowScrollButton}',
+												(onClick)='copyMessage( message )')
+											p-button(
+												styleClass='p-button-rounded p-button-sm p-button-text message_action m-2',
+												icon='pi pi-trash',
+												tooltipPosition='top',
+												[ngClass]='{"message_action--hidden": !isScrollUp || !isShowScrollButton}',
+												[pTooltip]='"LABEL.DELETE" | translate',
+												(onClick)='deleteMessage( message )')
+										.flex.align-items-end.justify-content-end
+											.avatar
+												img(*ngIf='profile?.picture; else elseBlock2', [src]='profile?.picture', alt='User')
+												ng-template(#elseBlock2)
+													.default
+														div
+												p-button.view-detail(
+													styleClass='p-button-rounded p-button-sm p-button-text message_action',
+													icon='pi pi-eye',
+													(onClick)='viewUserDetail()')
+									.right
+										ng-container(*ngIf="message?.content?.includes('\n'); else elseBlock")
+											pre#mark-message-sending(contentEditable="false") {{ message?.content }}
+										ng-template(#elseBlock)
+											p#message-sending {{ message?.content }}
+
+						ng-container(*ngIf='message?.role === "assistant"')
+							.assistant.flex.flex-column
+								.flex.flex-row.justify-content-between
+									.flex.align-items-start.justify-content-start
+										.avatar
+											div
+									.flex.align-items-center.justify-content-end
+										p-button.mr-1(
+											styleClass='p-button-rounded p-button-sm p-button-text message_action m-2',
+											icon='pi pi-copy',
+											tooltipPosition='top',
+											[ngClass]='{"message_action--hidden": !isScrollUp || !isShowScrollButton}',
+											[pTooltip]='"LABEL.COPY" | translate',
+											(onClick)='copyMessage( message )')
+										p-button(
+											styleClass='p-button-rounded p-button-sm p-button-text message_action m-2',
+											icon='pi pi-trash',
+											tooltipPosition='top',
+											[ngClass]='{"message_action--hidden": !isScrollUp || !isShowScrollButton}',
+											[pTooltip]='"LABEL.DELETE" | translate',
+											(onClick)='deleteMessage( message )')
+								.left
+									markdown([data]="message?.content")
+				div(*ngIf="isShowWaitingText")
+					p#message-error.ml-2
+						i.mr-2(class='pi pi-exclamation-triangle')
+						| {{ "MESSAGE.WAITING" | translate }}
+				div(*ngIf="isShowResent")
+					.flex.justify-content-end.mb-3
+						.user.flex
+							.flex.align-items-center.justify-content-start
+								p-button.flex.align-items-center.mt-4(
+									styleClass="p-button-outlined p-button-danger p-button-sm custom-error-btn m-2",
+									icon="pi pi-replay",
+									[pTooltip]='"MESSAGE.RESENT" | translate',
+									(onClick)='reload()')
+							.flex.flex-column
+								.flex.flex-row.justify-content-between
+									.flex.align-items-center.justify-content-start
+										p-button.flex.align-items-center(
+											styleClass="p-button-rounded p-button-sm p-button-text custom-cancel-btn",
+											icon="pi pi-times",
+											[pTooltip]='"LABEL.CANCEL" | translate',
+											(onClick)='cancelResendButton()')
+									.flex.align-items-end.justify-content-end
+										.avatar
+											img(*ngIf='profile?.picture; else elseBlock2', [src]='profile?.picture')
+											ng-template(#elseBlock2)
+												.default
+													div
+											p-button.view-detail(
+												styleClass='p-button-rounded p-button-sm p-button-text message_action',
+												icon='pi pi-eye',
+												(onClick)='viewUserDetail()')
+								.right.resent
+									ng-container(*ngIf="messageCanResent?.content?.includes('\n'); else elseBlock")
+										pre#mark-message-sending(contentEditable="false") {{ messageCanResent?.content }}
+									ng-template(#elseBlock)
+										p#message-sending {{ messageCanResent?.content }}
+				ng-container(*ngIf="isResponding")
+					ng-container(*ngIf='textResponding && textResponding.trim().length > 0, else elseBlock')
+						.assistant.flex.flex-column
+							.flex.flex-row.justify-content-between
+								.flex.align-items-start.justify-content-start
+									.avatar
+										div
+							.left
+								markdown([data]="textResponding")
+					ng-template(#elseBlock)
+						.flex.mt-3.mb-3
+							.flex.align-items-center.typing-indicator
+								span
+								span
+								span
+			.flex.support-bar
+				.flex.justify-content-center.flex-grow-1([style.visibility]='conversation.length > 0 && conversation[ conversation.length - 1 ].role === "assistant" ? "visible" : "hidden"')
+					p-button.flex.mr-2(
+						styleClass="p-button-rounded p-button-sm p-button-text custom-resend-btn m-2",
+						[label]='"LABEL.CONTINUE" | translate'
+						[pTooltip]='"LABEL.CONTINUE" | translate',
+						(onClick)='continue()')
+					p-button.flex.mr-2(
+						styleClass="p-button-rounded p-button-sm p-button-text custom-resend-btn m-2",
+						[label]='"LABEL.RESEND" | translate'
+						[pTooltip]='"LABEL.RESEND" | translate',
+						(onClick)='resend()')
+					p-button.flex(
+						styleClass="p-button-rounded p-button-sm p-button-text custom-resend-btn m-2",
+						[label]='"LABEL.ANOTHER_ANSWER" | translate'
+						[pTooltip]='"LABEL.ANOTHER_ANSWER" | translate',
+						(onClick)='ortherRequest("MESSAGE.ANOTHER_RESPONSE")')
+				.flex.justify-content-end
+					button.scroll-to-bottom(
+						*ngIf="isShowScrollButton",
+						(click)="scrollToBottom( false )"
+					) ↓
+			form.form((submit)='!isResponding && sendMessage( messageInput.value )')
+				.form-input
+					textarea(
+						#messageInput,
+						name='userMessage',
+						[placeholder]='"PLACEHOLDER.TYPE_MESSAGE" | translate',
+						[(ngModel)]='userMessage',
+						(keydown.enter)='!isResponding && handleEnterKey($event)',
+						(focus)='onFocus()')
+				p-button(
+					tooltipPosition="top",
+					[label]='( !isResponding ? "LABEL.SENT" : "" ) | translate',
+					[icon]='isResponding ? "pi pi-stop-circle" : ""',
+					[styleClass]='isResponding ? "button senting-button" : "button sent-button"',
+					[pTooltip]='( isResponding ? "LABEL.STOP" : "" ) | translate',
+					(onClick)='isResponding ? cancel() : ( !isResponding && sendMessage( messageInput.value ) )')
+		.preset.flex([ngClass]='{"preset--active": isPresetShow}')
+			.flex.flex-column
+				p-button.p-preset-button(
+					styleClass='p-button-secondary preset-button',
+					iconPos='left',
+					[icon]='!isPresetShow ? "pi pi-angle-double-left" : "pi pi-angle-double-right"',
+					[label]='"LABEL.EXPERT" | translate : { name: presetSelected?.name }',
+					(click)='isPresetShow = !isPresetShow')
+			.preset__content.flex.flex-column
+				ng-container(*ngIf='isNewPresetShow, else elseBlock1')
+					.flex.justify-content-between.p-2
+						p-button(
+							icon='pi pi-angle-left',
+							styleClass='p-button-rounded p-button-text',
+							tooltipPosition="bottom",
+							[pTooltip]='"LABEL.BACK" | translate',
+							(click)='cancelNewPreset()')
+						button.search-button.button(
+							form='presetForm',
+							type='submit',
+							pButton,
+							styleClass='p-button-warn',
+							[pTooltip]='"LABEL.SAVE" | translate',
+							(click)='createNewPreset()')
+							| {{ "LABEL.SAVE" | translate }}
+					form#presetForm.flex.flex-column.p-2([formGroup]='presetForm', (submit)='save()')
+						.flex.p-float-label.mb-4.mt-1
+							input.flex-grow-1(pInputText, id='presetName', [formControl]='presetForm?.controls?.presetName')
+							label(htmlFor='presetName')
+								| {{ "LABEL.EXPERT_NAME" | translate }}
+						.flex.mb-4
+							p-dropdown.flex.flex-grow-1(
+								ngDefaultControl,
+								[styleClass]='"flex-grow-1"',
+								[options]='mindsets',
+								[formControl]='presetForm?.controls?.presetMindset',
+								[(ngModel)]='presetForm.controls.presetMindset',
+								[placeholder]='"LABEL.MINDSET" | translate',
+								optionLabel='name')
+						.flex.p-float-label(*ngIf='presetForm.controls.presetDescription, else elseBlock')
+							textarea.flex-grow-1(
+								id='presetDescription',
+								pInputTextarea,
+								[formControl]='presetForm?.controls?.presetDescription')
+							label(for='presetDescription')
+								| {{ "LABEL.DESCRIPTION" | translate }}
+						ng-template(#elseBlock)
+							p-button(icon='pi pi-spin pi-spinner', styleClass='p-button-rounded p-button-text')
+				ng-template(#elseBlock1)
+					form(*ngIf='!isNewPresetShow, else elseBlock', (submit)='search( searchInput.value )')
+						.form-input
+							input(
+								#searchInput,
+								[placeholder]='"PLACEHOLDER.SEARCH" | translate',
+								[ngModelOptions]="{standalone: true}",
+								[(ngModel)]='searchInput.value',
+								(ngModelChange)='search( searchInput.value )')
+							button.search-button.button(
+								type='button',
+								pButton,
+								icon='pi pi-search',
+								tooltipPosition="bottom",
+								styleClass='p-button-warn',
+								[pTooltip]='"PLACEHOLDER.SEARCH" | translate',
+								(click)='search( searchInput.value )')
+						button.create-button.button(
+							type='button',
+							pButton,
+							icon='pi pi-plus',
+							tooltipPosition="left",
+							styleClass='p-button-secondary',
+							[pTooltip]='"LABEL.CREATE_PRESET" | translate',
+							(click)='isNewPresetShow = !isNewPresetShow')
+					p-tabView
+						p-tabPanel(
+							[header]='searchInput?.value?.length > 0 \
+								? ( "LABEL.DEFAULT_PRESET" | translate ) + " (" + tempPresets?.length + ")" \
+								: ( "LABEL.DEFAULT_PRESET" | translate ) + " (" + presets?.length + ")"')
+							p-orderList(
+								metaKeySelection='false',
+								[listStyle]='{ "max-height": "35vh", "min-height": "35vh" }',
+								[dragdrop]='true',
+								[selection]="[presetSelected]",
+								[(value)]='searchInput?.value?.length > 0 ? tempPresets : presets',
+								(onReorder)='onPresetReorder()',
+								(selectionChange)='onPresetChange( $event )')
+								ng-template(let-preset, pTemplate='item')
+									.item-name.flex.align-items-center.justify-content-start.p-2.w-full.flex-wrap
+										| {{ preset?.name }}
+									.item-view.flex.align-items-center.justify-content-end
+										p-button(
+											icon='pi pi-eye',
+											styleClass='p-button-rounded p-button-text item-view-button',
+											tooltipPosition="bottom",
+											[pTooltip]='"LABEL.DETAIL" | translate')
+						p-tabPanel(
+							[header]='searchInput?.value?.length > 0 \
+								? ( "LABEL.CUSTOM_PRESET" | translate ) + " (" + tempCustomPresets?.length + ")" \
+								: ( "LABEL.CUSTOM_PRESET" | translate ) + " (" + ( customPresets?.length > 0 ? customPresets?.length : 0 ) + ")"')
+							div(style={ 'min-height': '30vh' })
+								ng-container(*ngIf='customPresets?.length > 0 || tempCustomPresets?.length > 0, else elseBlock')
+									p-orderList(
+										metaKeySelection='false',
+										[listStyle]='{ "max-height": "30vh", "min-height": "30vh" }',
+										[dragdrop]='true',
+										[selection]="[presetSelected]",
+										[(value)]='tempCustomPresets?.length > 0 ? tempCustomPresets : customPresets',
+										(onReorder)='onPresetReorder( $event )',
+										(selectionChange)='onPresetChange( $event )')
+										ng-template(let-preset, pTemplate='item')
+											.item-name.flex.align-items-center.justify-content-start.p-2.w-full.flex-wrap
+												| {{ preset?.name }}
+											.item-view.flex.align-items-center.justify-content-end
+												p-button(
+													icon='pi pi-eye',
+													styleClass='p-button-rounded p-button-text item-view-button',
+													tooltipPosition="bottom",
+													[pTooltip]='"LABEL.DETAIL" | translate')
+								ng-template(#elseBlock)
+									.text-center
+										b ({{ "LABEL.EMPTY" | translate }})

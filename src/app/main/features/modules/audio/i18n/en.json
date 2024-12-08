@@ -1,0 +1,28 @@
+{
+	"LABEL": {
+		"ACCOUNT_SETTINGS": "Account settings",
+		"ACCOUNT": "Account",
+		"CLOSE": "Close",
+		"DONE": "Done",
+		"EDIT": "Edit",
+		"SAVE": "Save",
+		"SIGN_OUT": "Sign out",
+		"WORKSPACE_ACCENT_COLOR": "Workspace accent color",
+		"WORKSPACE_ID": "Workspace ID",
+		"WORKSPACE_NAME": "Workspace name"
+	},
+	"PLACEHOLDER": {
+		"MY_WORKSPACE_ID": "my-workspace-id",
+		"TYPE_WORKSPACE_NAME": "Type a workspace name"
+	},
+	"MESSAGE": {
+		"CREATE_A_WORKSPACE": "Create a workspace",
+		"CREATE_A_WORKSPACE_DESCRIPTION": "In Cubable, everything happens in workspace such as write, plan, track, collaborate, give permission, and mores.",
+		"LOADING_WORKSPACE": "Loading workspace...",
+		"SETTING_UP_HEADER_DESCRIPTION": "But why? We need the informations to personalise the onboarding proccess",
+		"SETTING_UP_HEADER_WORKSPACE_TITLE": "Tell us about your workspace",
+		"WORKSPACE_ID_EXPLAIN": "Workspace ID is assigned automatically based on workspace name but you can edit.",
+		"WORKSPACE_ID_HINT": "Workspace ID must only have lowercase letters, digits and hyphens.",
+		"WORKSPACE_ID_UNAVAILABLE": "This workspace ID already exits. Please try another."
+	}
+}

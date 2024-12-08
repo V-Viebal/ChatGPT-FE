@@ -1,0 +1,71 @@
+$layout-breakpoint-xs: 600px;
+$layout-breakpoint-sm: 960px;
+$layout-breakpoint-md: 1280px;
+$layout-breakpoint-lg: 1920px;
+
+$palettes: (
+	pink: (
+		700: #d30f45,
+		500: #ff2d55,
+		400: #ff6482,
+		200: #f8d7da,
+	),
+	darkGray: (
+		200: #3a3e3e,
+		300: #2e3232,
+		400: #292b2b,
+		500: #232525,
+		700: #171919,
+		900: #0c0c0c,
+	),
+	lightGray: (
+		200: #e1e1e1,
+		300: #e7e7e7,
+		400: #ededed,
+		500: #f0f0f0,
+		700: #f6f6f6,
+		900: #fff,
+	)
+);
+
+@function color($color, $tone) {
+	@if map-has-key($palettes, $color) {
+		$color: map-get($palettes, $color);
+
+		@if map-has-key($color, $tone) {
+			$tone: map-get($color, $tone);
+			@return $tone;
+		}
+
+		@return undefined;
+	}
+
+	@return undefined;
+}
+
+/* COLORS */
+// $color-primary: color(indigo, 700);
+// $color-secondary: #f7f7f7;
+$color-default: #eee;
+
+// $color-info: color(blue, 500);
+// $color-success: color(green, 500);
+// $color-warning: color(yellow, 500);
+// $color-danger: color(red, 700);
+
+$color-text: color(darkGray, 700);
+$color-label: color(darkGray, 200);
+$color-placeholder: color(lightGray, 500);
+$color-disabled: color(lightGray, 300);
+
+$color-border-super-thick: color(lightGray, 700);
+$color-border-thick: color(lightGray, 400);
+$color-border: color(lightGray, 300);
+
+// $color-active: hex-opacity(color(blue, 400), .1); // #ecf5ff
+// $color-highlight: hex-opacity(color(yellow, 700), .15); // #f4f0d9
+
+$color-light-hover: rgb(225 225 225 / 40%);
+$color-light-focus: rgb(225 225 225 / 70%);
+$color-dark-hover: rgb(41 43 43 / 20%);
+$color-dark-focus: rgb(41 43 43 / 70%);

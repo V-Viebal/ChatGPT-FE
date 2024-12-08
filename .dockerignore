@@ -1,0 +1,28 @@
+# Ignore node_modules folder
+node_modules
+
+# Ignore build artifacts
+dist
+
+# Ignore the default editor backup files
+*~
+
+# Ignore any log files
+*.log
+
+# Ignore the VS Code folder
+.vscode
+
+# Ignore any temporary files
+.tmp
+
+# Ignore any testing-related files
+karma.conf.js
+protractor.conf.js
+tsconfig.spec.json
+
+# Ignore any source control-related files or folders
+.git
+.gitignore
+.svn
+.hgignore

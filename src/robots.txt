@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /not-found
+
+Noindex:/not-found
+
+Sitemap: https://mscharm.vn/sitemap.xml

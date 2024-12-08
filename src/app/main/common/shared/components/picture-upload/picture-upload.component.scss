@@ -1,0 +1,105 @@
+@import 'scss/stylesheets/variables';
+
+:host {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	width: 50%;
+
+
+	.fileinput {
+		input {
+			display: none;
+		}
+		.thumbnail {
+			width: 100%;
+			border-radius: .5rem;
+			background-size: cover;
+		}
+	}
+
+	.image-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+
+		i {
+			position: absolute;
+		}
+	}
+
+	.loading {
+		opacity: .3;
+	}
+}
+
+[data-theme="light"] :host ::ng-deep{
+	.reset-button {
+		color: color(darkGray, 700);
+		background: transparent !important;
+		border: solid 1px color(darkGray, 700) !important;
+		width: 100%;
+
+		&:focus,
+		&:hover {
+			color: color(darkGray, 700);
+			background: color(lightGray, 400) !important;
+			border: solid 1px color(darkGray, 700) !important;
+			box-shadow: 0 0 0 2px color(lightGray, 700), 0 0 0 4px color(darkGray, 500), 0 1px 2px 0 color(darkGray, 700) !important;
+		}
+	}
+
+	.new-button {
+		color: color(darkGray, 700);
+		background: color(lightGray, 300) !important;
+		border: solid 1px color(darkGray, 700) !important;
+		width: 100%;
+
+		&:focus,
+		&:hover {
+			background: color(lightGray, 500) !important;
+			border: solid 1px color(darkGray, 200) !important;
+			color: color(darkGray, 700);
+			box-shadow: 0 0 0 2px color(lightGray, 700), 0 0 0 4px color(darkGray, 500), 0 1px 2px 0 color(darkGray, 700) !important;
+		}
+	}
+}
+
+[data-theme="dark"] :host ::ng-deep{
+	.reset-button {
+		background: transparent !important;
+		color: color(lightGray, 700);
+		border: solid 1px color(lightGray, 700) !important;
+		width: 100%;
+
+		&:focus,
+		&:hover {
+			background: color(darkGray, 400) !important;
+			color: color(lightGray, 700);
+			border: solid 1px color(lightGray, 700) !important;
+			box-shadow: 0 0 0 2px color(darkGray, 700), 0 0 0 4px color(lightGray, 500), 0 1px 2px 0 color(lightGray, 700) !important;
+		}
+	}
+
+	.new-button {
+		background: color(darkGray, 300) !important;
+		border: solid 1px color(lightGray, 700) !important;
+		color: color(lightGray, 700);
+		width: 100%;
+
+		&:focus,
+		&:hover {
+			background: color(darkGray, 400) !important;
+			border: solid 1px color(lightGray, 200) !important;
+			color: color(lightGray, 700);
+			box-shadow: 0 0 0 2px color(darkGray, 700), 0 0 0 4px color(lightGray, 500), 0 1px 2px 0 color(lightGray, 700) !important;
+		}
+	}
+}
+
+@media only screen and (max-width: 1200px) {
+	:host {
+		width: 100%;
+	}
+}

@@ -1,0 +1,146 @@
+p-toast#hint(
+	key="reload",
+	[preventDuplicates]='true',
+	[breakpoints]='{"1200px": {width: "100%", right: "unset", left: "unset", bottom: "-15px", top: "unset"}}',
+	[baseZIndex]='100000',
+	(onClose)='clearToast()')
+	ng-template(
+		let-message,
+		pTemplate='message')
+		.flex.flex-column(style='flex: 1')
+			.text-center
+				i.mb-2(class='pi pi-exclamation-triangle', style='font-size: 3rem')
+				h4 {{ "MESSAGE.UPDATE" | translate }}
+				p {{ "MESSAGE.UPDATE_MESSAGE" | translate }}
+			.grid.p-fluid
+				button.col-12(
+					pButton,
+					type='button',
+					class='p-button-success save-button',
+					[label]='"LABEL.RELOAD" | translate',
+					(click)='reloadSite()')
+
+p-dialog(
+	[header]='"LABEL.SETTING_HEADER" | translate',
+	[modal]='true',
+	[draggable]='false',
+	[resizable]='false',
+	[dismissableMask]='true',
+	[(visible)]='isShowSettingDialog',
+	(onHide)='hideSettingDialog()',
+	(onShow)='openSettingDialog()')
+	.flex.flex-column.justify-content-center.m-2
+		p-card.w-100.mb-4([header]='"LABEL.ACCOUNT" | translate')
+			.flex.justify-content-center.align-items-center.m-2.h-60.infor-account
+				ng-container(*ngIf='!profile, else elseBlock')
+					p-button.flex-50.mh-10(
+						*ngIf='isGoogleSubmitting',
+						icon='pi pi-spin pi-spinner',
+						styleClass='google-button-clicked',
+						[disabled]='isGoogleSubmitting')
+					p-button.flex-50.mh-10(
+						*ngIf='!isGoogleSubmitting',
+						styleClass='google-button',
+						(click)='signInByGoogle()')
+						img(
+							alt='logo'
+							src='assets/images/google.png'
+							style='width: 1.5rem')
+						span(class='ml-2 font-bold') {{ "LABEL.SIGN_IN_BY_GOOGLE" | translate }}
+				ng-template(#elseBlock)
+					.inline-block.mr-3
+						.flex.align-items-center.justify-content-end
+							p-avatar(
+								size='xlarge',
+								[image]='profile.picture',
+								[style]='{ "border-radius": "10px" }')
+					.inline-block
+						.flex.align-items-start.justify-content-start.flex-column
+							b {{ profile.name }}
+							.blur {{ profile.email }}
+							a.logout((click)='logout()') {{ "LABEL.LOGOUT" | translate }}
+
+		p-card.w-100.mb-4([header]='"LABEL.APPEARANCE" | translate')
+			.flex.flex-nowrap.justify-content-center.align-items-center.m-2
+				.flex.mb-2
+					.mr-2.font-semibold
+						| {{ "LABEL.DARK" | translate }}
+					i.mr-4(
+						class='pi pi-moon',
+						style='font-size: 1.5rem'
+					)
+				p-inputSwitch.flex.mt-1.mr-4.mb-2(
+					[(ngModel)]='isLightStatus',
+					(onChange)='changeAppearance( $event )')
+				.flex.mb-2
+					i.mr-2(
+						class='pi pi-sun',
+						style='font-size: 1.5rem'
+					)
+					.font-semibold
+						| {{ "LABEL.LIGHT" | translate }}
+
+		p-card.w-100([header]='"LABEL.LANGUAGE" | translate')
+			.flex.justify-content-center.align-items-center.m-2
+				p-selectButton(
+					optionLabel='label',
+					optionValue='value',
+					[options]='languageOptions',
+					[(ngModel)]='languageSelected',
+					(onChange)='changeLanguage()')
+
+		p-card.w-100.mb-4([header]='"LABEL.BACKGROUND_IMAGE" | translate')
+			.flex.flex-wrap.justify-content-center.align-items-center.w-100
+				app-picture-upload(
+					[imgSrc]='backgroundImageUrl',
+					[avatar]='true',
+					(outputImg)='setbackgroundImage( $event )')
+
+
+.section
+	.speed-dial-container.m-2(
+		cdkDrag,
+		cdkDragPreviewContainer='parent',
+		cdkDragBoundary='.section')
+		p-speedDial(
+			direction='down',
+			showIcon='pi pi-bars',
+			hideIcon='pi pi-times',
+			buttonClassName='p-button-outlined',
+			[transitionDelay]='80',
+			[model]='hamburgerItems',
+			[className]='!isScrollUp ? "p-speeddial-button--hidden" : ""')
+	p-dock(
+		[model]='dockItems',
+		position='right')
+			ng-template(
+				let-item,
+				pTemplate='item')
+				i#dock-icon(
+					style='font-size: 2.5rem',
+					[class]='item.icon')
+	.custom-bar.flex.mb-8
+		p-button.flex(
+			icon='pi pi-sun',
+			[styleClass]='theme === "light" ? "custom-bar_button--active custom-bar_button" : "custom-bar_button"',
+			[label]='"LABEL.LIGHT" | translate',
+			(click)='changeAppearance( { checked: true } )')
+		p-button.flex(
+			icon='pi pi-moon',
+			[styleClass]='theme === "dark" ? "custom-bar_button--active custom-bar_button" : "custom-bar_button"',
+			[label]='"LABEL.DARK" | translate',
+			(click)='changeAppearance( { checked: false } )')
+	.custom-bar.flex
+		p-button.flex(
+			[styleClass]='languageSelected === "vi" ? "custom-bar_button--active custom-bar_button" : "custom-bar_button"',
+			(click)='changeLanguage( "vi" )')
+			img(alt='VI', src='assets/images/VN.svg', style='width: 1.5rem')
+			span(class='ml-4 font-bold')
+				| {{ "LABEL.VI" | translate }}
+		p-button.flex(
+			[styleClass]='languageSelected === "en" ? "custom-bar_button--active custom-bar_button" : "custom-bar_button"',
+			(click)='changeLanguage( "en" )')
+			img(alt='EN', src='assets/images/ENG.svg', style='width: 1.5rem')
+			span(class='ml-4 font-bold')
+				| {{ "LABEL.EN" | translate }}
+	router-outlet

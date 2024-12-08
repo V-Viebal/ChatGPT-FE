@@ -1,0 +1,64 @@
+.fileinput.m-2.text-center(*ngIf='avatar')
+	input(
+		#fileInput,
+		accept='image/*',
+		type='file',
+		(change)='handleImageChange($event)')
+	.image-container([class.loading]='isImageLoading')
+		i(*ngIf='isImageLoading', class='pi pi-spin pi-spinner', style='font-size: 2rem')
+		img.thumbnail.mb-2(
+			referrerpolicy="no-referrer",
+			[alt]='"LABEL.BACKGROUND_IMAGE" | translate',
+			[src]='imgSrcPreviewUrl')
+	.flex.justify-content-center
+		button.justify-content-center.align-items-center.mr-2(
+			pButton,
+			type='button',
+			class='p-button-success new-button',
+			(click)='handleClick()')
+
+			i(class='pi pi-plus', style='font-size: 1rem; margin-right: .5rem')
+			| {{ "LABEL.ADD_BACKGROUND" | translate }}
+		button.justify-content-center.align-items-center(
+			pButton,
+			type='button',
+			class='p-button-secondary reset-button',
+			(click)='handleRemove()')
+			i(class='pi pi-replay', style='font-size: 1rem; margin-right: .5rem')
+			| {{ "LABEL.RESET_BACKGROUND" | translate }}
+//- .fileinput.text-center(*ngIf="!avatar")
+//- 	p-fileUpload(
+//- 		name="demo[]",
+//- 		(onSelect)="handleImageChange($event)",
+//- 		multiple="multiple",
+//- 		accept="image/*",
+//- 		maxFileSize="150000000",
+//- 		chooseLabel="Thêm ảnh",
+//- 		cancelLabel="Loại bỏ",
+//- 		[showUploadButton]="false")
+//- 		ng-template(pTemplate="content")
+//- 			ng-container(*ngIf="imgSrcArray")
+//- 				div(
+//- 					class="p-fileupload-files ng-star-inserted",
+//- 					*ngFor="let file of imgSrcArray")
+//- 					div(class="ng-star-inserted")
+//- 						div(class="p-fileupload-row ng-star-inserted")
+//- 							div
+//- 								img(
+//- 									src="{{ file.link }}",
+//- 									width="50",
+//- 									class="ng-star-inserted")
+//- 							div ---
+//- 							div ---
+//- 							div
+//- 								button(
+//- 									type="button",
+//- 									icon="pi pi-eye-slash",
+//- 									pbutton="",
+//- 									ng-reflect-icon="pi pi-eye-slash",
+//- 									class="p-button p-component p-button-icon-only",
+//- 									(click)="remove(file)")
+//- 									span(
+//- 										class="p-button-icon pi pi-eye-slash",
+//- 										aria-hidden="true")
+//- 									span(aria-hidden="true", class="p-button-label") &nbsp;

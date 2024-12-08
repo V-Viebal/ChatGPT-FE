@@ -1,0 +1,67 @@
+{
+	"index": "/index.html",
+	"assetGroups": [
+		{
+			"name": "app",
+			"installMode": "prefetch",
+			"updateMode": "prefetch",
+			"resources": {
+			"files": [
+				"/favicon.ico",
+				"/index.html",
+				"/*.css",
+				"/*.js",
+				"/*.svg",
+				"/*.png",
+				"/*.jpg",
+				"/*.jpeg",
+				"/*.gif",
+				"/*.webp",
+				"/*.woff",
+				"/*.woff2",
+				"/*.eot",
+				"/*.ttf",
+				"/*.ico"
+			]
+			}
+		},
+		{
+			"name": "assets",
+			"installMode": "lazy",
+			"updateMode": "lazy",
+			"resources": {
+				"files": [
+					"/assets/**"
+				]
+			}
+		}
+	],
+	"dataGroups": [
+		{
+			"name": "api",
+			"urls": [
+				"/api/**"
+			],
+			"cacheConfig": {
+				"maxSize": 100,
+				"maxAge": "1h",
+				"timeout": "5s",
+				"strategy": "performance"
+			}
+		},
+		{
+			"name": "externalApi",
+			"urls": [
+			"https://apis.google.com/js/**",
+			"https://accounts.google.com/gsi/client",
+			"https://www.dropbox.com/static/api/2/dropins.js"
+			],
+			"cacheConfig": {
+			"maxSize": 50,
+			"maxAge": "24h",
+			"timeout": "10s",
+			"strategy": "freshness"
+			}
+		}
+	]
+}

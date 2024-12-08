@@ -1,0 +1,22 @@
+@import './variables.scss';
+
+html,
+body {
+	height: 100%;
+	overflow-y: unset !important;
+	overflow-x: hidden !important;
+	margin: 0;
+	background-size: cover;
+}
+
+[data-theme="light"] body {
+	background-color: color(lightGray, 700);
+	background-image: url('~assets/images/white-water-bg.webp');
+	color: color(darkGray, 700);
+}
+
+[data-theme="dark"] body {
+	background-color: color(darkGray, 700);
+	background-image: url('~assets/images/black-water-bg.webp');
+	color: color(lightGray, 700);
+}

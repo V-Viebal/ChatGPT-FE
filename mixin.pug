@@ -1,0 +1,74 @@
+mixin if( condition )
+	| @if (!{condition}) {
+	block
+	| }
+
+mixin elseif( condition )
+	| @else if (!{condition}) {
+	block
+	| }
+
+mixin else
+	| @else {
+	block
+	| }
+
+mixin switch( condition )
+	| @switch (!{condition}) {
+	block
+	| }
+
+mixin case( condition )
+	| @case (!{condition}) {
+	block
+	| }
+
+mixin default
+	| @default {
+	block
+	| }
+
+mixin for( config )
+	| @for (!{config}) {
+	block
+	| }
+
+mixin empty
+	| @empty {
+	block
+	| }
+
+mixin defer
+	| @defer {
+	block
+	| }
+
+mixin defer( config )
+	| @defer (!{config}) {
+	block
+	| }
+
+mixin placeholder
+	| @placeholder {
+	block
+	| }
+
+mixin placeholder( config )
+	| @placeholder (!{config}) {
+	block
+	| }
+
+mixin loading
+	| @loading {
+	block
+	| }
+
+mixin loading( config )
+	| @loading (!{config}) {
+	block
+	| }
+
+mixin error
+	| @error {
+	block
+	| }
