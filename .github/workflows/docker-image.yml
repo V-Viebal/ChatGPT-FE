@@ -1,0 +1,47 @@
+name: CICD
+
+on:
+  push:
+    branches: [ "main", "dev", "staging" ]
+    paths-ignore:
+      - .gitignore
+      - CODE_OF_CONDUCT.md
+      - LICENSE
+      - README.md
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  set-environment-name:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env-name.outputs.environment }}
+    steps:
+      - name: Set environment
+        id: set-env-name
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            ENV_NAME="prod"
+          elif [[ "${GITHUB_REF##*/}" == "staging" ]]; then
+            ENV_NAME="stg"
+          elif [[ "${GITHUB_REF##*/}" == "dev" ]]; then
+            ENV_NAME="dev"
+          fi
+          echo "environment=${ENV_NAME}" >> $GITHUB_OUTPUT
+  build:
+    needs: [set-environment-name]
+    uses: ./.github/workflows/build.yml
+    secrets: inherit
+    with:
+      environment: ${{ needs.set-environment-name.outputs.environment }}
+      build-artifacts: true
+      
+  deploy:
+    needs: [ set-environment-name, build ]
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
+    with:
+      environment: ${{ needs.set-environment-name.outputs.environment }}
+      build-tag: ${{ needs.build.outputs.build-tag }}
