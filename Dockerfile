@@ -8,6 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY . .
 RUN npm i
+RUN npm i -g @angular/cli@17
 
 # Build the application
 RUN ng build --configuration=production
