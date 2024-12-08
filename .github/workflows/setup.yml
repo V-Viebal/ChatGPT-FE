@@ -88,7 +88,7 @@ jobs:
           # Set environment-specific variables
           variables_to_set=(
             "ENV_NAME=$env"
-            "SERVICE_NAME=chat.gpt"
+            "SERVICE_NAME=chat-gpt"
             "SERVICE_DOMAIN=chat.viebal.top"
             "SERVICE_PORT=7000"
             "DOCKER_FILE_PORT=80"
