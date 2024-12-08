@@ -2,8 +2,7 @@ export const ENVIRONMENT = {
 	VERSION: 1.09,
 	PRODUCTION: true,
 	OPENAI_KEY: [
-		'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',
-		'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',
+		'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',
 	],
 	OPENAI_KEY_PRO: [
 		'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',

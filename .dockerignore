@@ -26,3 +26,5 @@ tsconfig.spec.json
 .gitignore
 .svn
 .hgignore
+
+package-lock.json
