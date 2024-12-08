@@ -1,0 +1,128 @@
+name: Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      FINE_GRAINED_PAT:
+        description: 'Fine-Grained Personal Access Token for GitHub'
+        required: true
+        type: string
+      APP_PATH:
+        description: 'The main folder to store config,...'
+        required: false
+        default: '/home/ubuntu'
+        type: string
+      DOCKER_USERNAME:
+        description: 'Default Docker Hub Username'
+        required: false
+        default: 'vviebal'
+        type: string
+      DOCKER_TOKEN:
+        description: 'Default Docker Hub Token'
+        required: false
+        default: ''
+        type: string
+      DOCKER_REPO:
+        description: 'Default Docker Hub Repo'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:  
+    - name: Setup GitHub CLI
+      run: |
+        echo "${{ github.event.inputs.FINE_GRAINED_PAT }}" | gh auth login --with-token
+
+    - name: Extract Repository Info
+      run: |
+        # Extract the organization and repository name from GITHUB_REPOSITORY
+        REPO="${{ github.repository }}"
+        ORGANIZATION="${REPO%/*}"
+        REPO_NAME="${REPO#*/}"
+
+        echo "Repository Info"
+        echo "Organization: $ORGANIZATION"
+        echo "Repository name: $REPO_NAME"
+
+        # Store the values as environment variables for use in later step
+        echo "ORGANIZATION=${ORGANIZATION}" >> $GITHUB_ENV
+        echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
+
+    - name: Create GitHub Environments and Set Variables
+      run: |
+        echo "Setting up GitHub environments..."
+        echo "Project Name: ${REPO_NAME}"
+        echo "DOCKER_USERNAME: ${{ github.event.inputs.DOCKER_USERNAME }}"
+        echo "DOCKER_TOKEN: ${{ github.event.inputs.DOCKER_TOKEN }}"
+        echo "DOCKER_REPO: ${{ github.event.inputs.DOCKER_REPO }}"
+
+        # Set global variables (not environment-specific)
+        gh secret set APP_PATH \
+          --repo "$ORGANIZATION/$REPO_NAME" \
+          --body "${{ github.event.inputs.APP_PATH }}"
+          
+        gh secret set DOCKER_USERNAME \
+          --repo "$ORGANIZATION/$REPO_NAME" \
+          --body "${{ github.event.inputs.DOCKER_USERNAME }}"
+
+        gh secret set DOCKER_TOKEN \
+          --repo "$ORGANIZATION/$REPO_NAME" \
+          --body "${{ github.event.inputs.DOCKER_TOKEN }}"
+
+        gh secret set DOCKER_REPO \
+          --repo "$ORGANIZATION/$REPO_NAME" \
+          --body "${{ github.event.inputs.DOCKER_REPO }}"
+
+        # List of environments and create each one
+        environments=("dev" "stg" "prod")
+
+        # Loop through environments and create each one
+        for env in "${environments[@]}"; do
+          echo "Creating environment: $env"
+          gh api --method PUT "/repos/$ORGANIZATION/$REPO_NAME/environments/$env" \
+            -H "Accept: application/vnd.github.v3+json"
+
+          # Set environment-specific variables
+          variables_to_set=(
+            "ENV_NAME=$env"
+            "SERVICE_NAME=chat.gpt"
+            "SERVICE_DOMAIN=chat.viebal.top"
+            "SERVICE_PORT=7000"
+            "DOCKER_FILE_PORT=80"
+          )
+          
+          for variable in "${variables_to_set[@]}"; do
+              variable_name=$(echo "$variable" | cut -d '=' -f 1)
+              variable_value=$(echo "$variable" | cut -d '=' -f 2)
+              
+              # Set the variable for the environment
+              echo "Setting variable '$variable_name' for environment $env"
+              gh variable set "$variable_name" \
+                --env "$env" \
+                --repo "$ORGANIZATION/$REPO_NAME" \
+                --body "$variable_value"
+          done
+
+          # for variable in "${variables_to_set[@]}"; do
+            # variable_name=$(echo $variable | cut -d '=' -f 1)
+            # variable_value=$(echo $variable | cut -d '=' -f 2)
+
+            # # Check if variable exists before setting (for idempotency)
+            # if gh variable list --repo "$ORGANIZATION/$REPO_NAME" | grep -q "$variable_name"; then
+              # echo "Variable '$variable_name' already exists, skipping creation."
+            # else
+              # echo "Setting variable '$variable_name' for environment $env"
+              # gh variable set $variable_name \
+                # --env $env \
+                # --repo "$ORGANIZATION/$REPO_NAME" \
+                # --body "$variable_value"
+            # fi
+          # done
+        done
+
+    - name: Done
+      run: |
+        echo "✅ GitHub Environments and Secrets setup completed!"
