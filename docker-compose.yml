@@ -18,7 +18,7 @@ services:
           placement:
             constraints: 
               - node.platform.os == linux
-              - node.role == worker
+              - node.hostname == racknerd-2579d5
           labels:
             - "traefik.enable=true"
             - "traefik.docker.network=public"
