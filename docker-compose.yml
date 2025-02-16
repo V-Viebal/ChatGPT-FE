@@ -10,8 +10,6 @@ services:
           - ENV_NAME=${ENV_NAME}
         networks: # REQUIRED: Should be 'public' to join into docker swarm.
           - public
-        ports:
-          - "${SERVICE_PORT}:${DOCKER_FILE_PORT}"
         deploy:
           mode: replicated
           replicas: 1
