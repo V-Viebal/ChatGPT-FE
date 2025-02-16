@@ -21,6 +21,7 @@ services:
               - node.role == worker
           labels:
             - "traefik.enable=true"
+            - "traefik.docker.network=public"
             - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SERVICE_DOMAIN}`)"
             - "traefik.http.routers.${SERVICE_NAME}.entrypoints=websecure" # Can be 'web' to refer http instead.
             - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${SERVICE_PORT}"
